@@ -1,0 +1,21 @@
+# application.yml
+# Week 1: using H2 in-memory DB so you don't need to install anything
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:journaldb   # lives in memory, resets on restart
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop      # auto creates tables on start
+    show-sql: true               # prints SQL to console so you can see what's happening
+
+  h2:
+    console:
+      enabled: true              # visit http://localhost:8080/h2-console to see your data
