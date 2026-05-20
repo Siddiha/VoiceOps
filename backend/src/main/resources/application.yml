@@ -19,3 +19,13 @@ spring:
   h2:
     console:
       enabled: true              # visit http://localhost:8080/h2-console to see your data
+
+
+openai:
+  # reads from environment variable — works both locally and in Docker
+  api-key: ${OPENAI_API_KEY:sk-YOUR-KEY-HERE}
+  model:   ${OPENAI_MODEL:gpt-3.5-turbo}
+
+# Go service URL — changes depending on environment
+go-service:
+  url: ${GO_SERVICE_URL:http://localhost:9090/summarise}

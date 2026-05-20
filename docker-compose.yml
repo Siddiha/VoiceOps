@@ -1,0 +1,54 @@
+# docker-compose lets you start ALL services with one command
+# Just run: docker-compose up --build
+
+version: "3.9"
+
+services:
+
+  # Go microservice — starts first because backend depends on it
+  go-service:
+    build:
+      context: ./go-service       # folder with Dockerfile
+    container_name: go-service
+    ports:
+      - "9090:9090"               # your machine:container
+    restart: unless-stopped       # auto restart if it crashes
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Spring Boot backend — waits for go-service to be healthy
+  backend:
+    build:
+      context: ./backend          # folder with Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Pass your OpenAI key as an env variable
+      # Never hardcode secrets in code!
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=gpt-3.5-turbo
+      # Tell Spring Boot where Go service is
+      # Inside Docker, services talk to each other by container name
+      - GO_SERVICE_URL=http://go-service:9090/summarise
+    depends_on:
+      go-service:
+        condition: service_healthy  # wait until Go is ready
+    restart: unless-stopped
+
+  # Optional: pgAdmin to visually browse your database
+  # Visit http://localhost:5050 — login: admin@admin.com / admin
+  # (remove this block if you don't need it)
+  db-admin:
+    image: dpage/pgadmin4
+    container_name: db-admin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - backend
