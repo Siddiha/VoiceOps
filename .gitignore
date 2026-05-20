@@ -1,0 +1,13 @@
+# Never push secrets
+.env
+
+# Java build output
+backend/target/
+
+# Go binary
+go-service/go-service
+
+# IDE files
+.idea/
+.vscode/
+*.iml
